@@ -1,0 +1,25 @@
+name: Build Minecraft Mod
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Download Fabric Template
+        run: |
+          git clone --depth 1 https://github.com template
+          cp -r template/* . && cp -r template/.* . 2>/dev/null || true
+          mkdir -p src/main/java/net/fabricmc/example/
+          cp NashiVisual.java src/main/java/net/fabricmc/example/NashiVisuals.java 2>/dev/null || cp NashiVisuals.java src/main/java/net/fabricmc/example/NashiVisuals.java
+      - name: Build JAR File
+        run: chmod +x gradlew && ./gradlew build
+      - name: Save Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: NashiVisuals-Mod
+          path: build/libs/*.jar
